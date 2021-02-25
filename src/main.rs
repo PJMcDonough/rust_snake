@@ -1,12 +1,12 @@
 use crossterm::{
-    cursor::{MoveTo, Hide, Show},
-    style::{SetForegroundColor, SetBackgroundColor, Color, Print, ResetColor},
-    event::{read, Event, KeyCode, poll},
+    cursor::{Hide, MoveTo, Show},
+    event::{poll, read, Event, KeyCode},
     execute,
+    style::{Color, Print, ResetColor, SetBackgroundColor, SetForegroundColor},
 };
 use std::io::{stdout, Write};
 use std::time::Duration;
-enum Direction{
+enum Direction {
     Up,
     Down,
     Left,
@@ -21,10 +21,7 @@ struct Coord {
 
 impl Coord {
     fn new(_x: i32, _y: i32) -> Self {
-        Self {
-            x: _x,
-            y: _y,
-        }
+        Self { x: _x, y: _y }
     }
 }
 
@@ -38,16 +35,16 @@ struct Snake {
 
 impl Snake {
     fn new(pos: Coord) -> Self {
-        Self{
+        Self {
             head: pos,
-            tail: vec!(),
+            tail: vec![],
             length_to_add: 0,
             facing: Direction::Up,
             alive: true,
         }
     }
 
-    fn draw_head(&self){
+    fn draw_head(&self) {
         let real_pos = game_to_screen(self.head);
         execute!(
             stdout(),
@@ -56,10 +53,11 @@ impl Snake {
             SetForegroundColor(Color::Yellow),
             Print("()"),
             ResetColor
-            ).unwrap();
+        )
+        .unwrap();
     }
 
-    fn draw_tail(&self){
+    fn draw_tail(&self) {
         for cell in self.tail.iter() {
             let real_pos = game_to_screen(*cell);
             execute!(
@@ -69,7 +67,8 @@ impl Snake {
                 SetForegroundColor(Color::Yellow),
                 Print("XX"),
                 ResetColor
-                ).unwrap();
+            )
+            .unwrap();
         }
     }
 
@@ -86,7 +85,11 @@ impl Snake {
             Direction::Left => self.head.x -= 1,
             Direction::Right => self.head.x += 1,
         };
-        if self.head.y < 0 || self.head.y >= board_size.y || self.head.x < 0 || self.head.x >= board_size.x {
+        if self.head.y < 0
+            || self.head.y >= board_size.y
+            || self.head.x < 0
+            || self.head.x >= board_size.x
+        {
             self.alive = false;
             return;
         }
@@ -107,14 +110,14 @@ struct Game {
 
 impl Game {
     fn new() -> Self {
-        Self{
+        Self {
             board_size: Coord::new(10, 10),
             snake: Snake::new(Coord::new(5, 5)),
             fruit: Coord::new(0, 0),
         }
     }
 
-    fn run(&mut self) -> crossterm::Result<()>{
+    fn run(&mut self) -> crossterm::Result<()> {
         loop {
             self.snake.update(&self.board_size);
             if !self.snake.alive {
@@ -134,12 +137,12 @@ impl Game {
                             Some(dir) => self.snake.facing = dir,
                             None => (),
                         }
-                    },
+                    }
                     _ => (),
                 }
             }
             std::thread::sleep(Duration::from_millis(200));
-        };
+        }
         Ok(())
     }
 }
@@ -162,7 +165,7 @@ fn game_to_screen(pos: Coord) -> Coord {
     Coord::new(pos.x * 2, pos.y)
 }
 
-fn screen_to_game(pos: Coord) -> Coord{
+fn screen_to_game(pos: Coord) -> Coord {
     Coord::new(pos.x / 2, pos.y)
 }
 
