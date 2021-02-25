@@ -123,7 +123,7 @@ impl Game {
             if !self.snake.alive {
                 break;
             }
-            if poll(Duration::from_millis(10))? {
+            while poll(Duration::from_millis(0))? {
                 match read()? {
                     Event::Key(event) => {
                         let direction = match event.code {
