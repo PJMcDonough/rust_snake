@@ -44,6 +44,19 @@ impl Snake {
             ResetColor
             );
     }
+
+    fn draw_tail(self){
+        for cell in self.tail.iter() {
+            execute!(
+                stdout(),
+                MoveTo(cell.x as u16, cell.y as u16),
+                SetBackgroundColor(Color::Blue),
+                SetForegroundColor(Color::Yellow),
+                Print("XX"),
+                ResetColor
+                );
+        }
+    }
 }
 
 struct Game {
