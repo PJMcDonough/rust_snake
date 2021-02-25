@@ -9,15 +9,43 @@ struct Coord {
     y: i32,
 }
 
+impl Coord {
+    fn new(_x: i32, _y: i32) -> Self {
+        Self {
+            x: _x,
+            y: _y,
+        }
+    }
+}
+
 struct Snake {
     head: Coord,
     tail: Vec<Coord>,
+}
+
+impl Snake {
+    fn new(pos: Coord) -> Self {
+        Self{
+            head: pos,
+            tail: vec!(),
+        }
+    }
 }
 
 struct Game {
     board_size: Coord,
     snake: Snake,
     fruit: Coord,
+}
+
+impl Game {
+    fn new() -> Self {
+        Self{
+            board_size: Coord::new(10, 10),
+            snake: Snake::new(Coord::new(5, 5)),
+            fruit: Coord::new(0, 0),
+        }
+    }
 }
 
 fn move_cursor(x: u16, y: u16) {
@@ -35,5 +63,5 @@ fn get_char() -> KeyCode {
 }
 
 fn main() {
-    print!("{:?}", get_char());
+    let game = Game::new();
 }
