@@ -21,6 +21,7 @@ impl Coord {
 struct Snake {
     head: Coord,
     tail: Vec<Coord>,
+    length_to_add: i32,
 }
 
 impl Snake {
@@ -28,7 +29,11 @@ impl Snake {
         Self{
             head: pos,
             tail: vec!(),
+            length_to_add: 0,
         }
+    }
+
+    fn draw_head(){
     }
 }
 
@@ -60,6 +65,14 @@ fn get_char() -> KeyCode {
             _ => (),
         }
     }
+}
+
+fn game_to_screen(pos: Coord) -> Coord {
+    Coord::new(pos.x * 2, pos.y)
+}
+
+fn screen_to_game(pos: Coord) -> Coord{
+    Coord::new(pos.x / 2, pos.y)
 }
 
 fn main() {
