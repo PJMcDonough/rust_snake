@@ -1,10 +1,19 @@
 use crossterm::{
     cursor::{MoveTo, Hide, Show},
     style::{SetForegroundColor, SetBackgroundColor, Color, Print, ResetColor},
-    event::{read, Event, KeyCode},
+    event::{read, Event, KeyCode, poll},
     execute,
 };
 use std::io::{stdout, Write};
+use std::time::Duration;
+enum Direction{
+    Up,
+    Down,
+    Left,
+    Right,
+}
+
+#[derive(Copy, Clone)]
 struct Coord {
     x: i32,
     y: i32,
@@ -23,6 +32,8 @@ struct Snake {
     head: Coord,
     tail: Vec<Coord>,
     length_to_add: i32,
+    facing: Direction,
+    alive: bool,
 }
 
 impl Snake {
@@ -31,13 +42,16 @@ impl Snake {
             head: pos,
             tail: vec!(),
             length_to_add: 0,
+            facing: Direction::Up,
+            alive: true,
         }
     }
 
     fn draw_head(&self){
+        let real_pos = game_to_screen(self.head);
         execute!(
             stdout(),
-            MoveTo(self.head.x as u16, self.head.y as u16),
+            MoveTo(real_pos.x as u16, real_pos.y as u16),
             SetBackgroundColor(Color::Blue),
             SetForegroundColor(Color::Yellow),
             Print("()"),
@@ -47,9 +61,10 @@ impl Snake {
 
     fn draw_tail(&self){
         for cell in self.tail.iter() {
+            let real_pos = game_to_screen(*cell);
             execute!(
                 stdout(),
-                MoveTo(cell.x as u16, cell.y as u16),
+                MoveTo(real_pos.x as u16, real_pos.y as u16),
                 SetBackgroundColor(Color::Blue),
                 SetForegroundColor(Color::Yellow),
                 Print("XX"),
@@ -61,6 +76,26 @@ impl Snake {
     fn draw(&self) {
         self.draw_head();
         self.draw_tail();
+    }
+
+    fn update(&mut self, board_size: &Coord) {
+        self.tail.insert(0, self.head);
+        match self.facing {
+            Direction::Up => self.head.y -= 1,
+            Direction::Down => self.head.y += 1,
+            Direction::Left => self.head.x -= 1,
+            Direction::Right => self.head.x += 1,
+        };
+        if self.head.y < 0 || self.head.y >= board_size.y || self.head.x < 0 || self.head.x >= board_size.x {
+            self.alive = false;
+            return;
+        }
+        self.draw();
+        if self.length_to_add != 0 {
+            self.length_to_add -= 1;
+        } else {
+            self.tail.pop();
+        }
     }
 }
 
@@ -77,6 +112,35 @@ impl Game {
             snake: Snake::new(Coord::new(5, 5)),
             fruit: Coord::new(0, 0),
         }
+    }
+
+    fn run(&mut self) -> crossterm::Result<()>{
+        loop {
+            self.snake.update(&self.board_size);
+            if !self.snake.alive {
+                break;
+            }
+            if poll(Duration::from_millis(200))? {
+                match read()? {
+                    Event::Key(event) => {
+                        let direction = match event.code {
+                            KeyCode::Up => Some(Direction::Up),
+                            KeyCode::Down => Some(Direction::Down),
+                            KeyCode::Left => Some(Direction::Left),
+                            KeyCode::Right => Some(Direction::Right),
+                            _ => None,
+                        };
+                        match direction {
+                            Some(dir) => self.snake.facing = dir,
+                            None => (),
+                        }
+                    },
+                    _ => (),
+                }
+            }
+            std::thread::sleep(Duration::from_millis(200));
+            };
+        Ok(())
     }
 }
 
@@ -104,7 +168,7 @@ fn screen_to_game(pos: Coord) -> Coord{
 
 fn main() {
     execute!(stdout(), Hide).unwrap();
-    let game = Game::new();
-    game.snake.draw_head();
+    let mut game = Game::new();
+    game.run();
     execute!(stdout(), Show).unwrap();
 }
