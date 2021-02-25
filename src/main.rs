@@ -148,34 +148,20 @@ impl Game {
     }
 
     fn draw_board(&self) {
-        execute!(stdout(), MoveTo(0, 0));
-        for i in 0..(self.board_size.x + 2) {
+        execute!(stdout(), MoveTo(0, 0)).unwrap();
+        for _i in 0..(self.board_size.x + 2) {
             print!("XX");
         }
         println!();
-        for i in 0..self.board_size.x {
+        for _i in 0..self.board_size.x {
             print!("XX");
-            for j in 0..self.board_size.y {
+            for _j in 0..self.board_size.y {
                 print!("  ");
             }
             println!("XX");
         }
-        for i in 0..(self.board_size.x + 2) {
+        for _i in 0..(self.board_size.x + 2) {
             print!("XX");
-        }
-    }
-}
-
-fn move_cursor(pos: Coord) {
-    execute!(stdout(), MoveTo(pos.x as u16, pos.y as u16)).unwrap();
-}
-
-fn get_char() -> KeyCode {
-    loop {
-        match read() {
-            Ok(Event::Key(event)) => break event.code,
-            Err(_) => panic!("Could not read!"),
-            _ => (),
         }
     }
 }
@@ -184,13 +170,9 @@ fn game_to_screen(pos: Coord) -> Coord {
     Coord::new(pos.x * 2 + 2, pos.y + 1)
 }
 
-fn screen_to_game(pos: Coord) -> Coord {
-    Coord::new(pos.x / 2 - 1, pos.y - 1)
-}
-
 fn main() {
     execute!(stdout(), Hide).unwrap();
     let mut game = Game::new();
-    game.run();
+    game.run().unwrap();
     execute!(stdout(), Show).unwrap();
 }
