@@ -6,6 +6,7 @@ use crossterm::{
 };
 use std::io::{stdout, Write};
 use std::time::Duration;
+use rand::seq::SliceRandom;
 enum Direction {
     Up,
     Down,
@@ -111,11 +112,33 @@ struct Game {
 
 impl Game {
     fn new() -> Self {
-        Self {
+        let mut s = Self {
             board_size: Coord::new(40, 40),
             snake: Snake::new(Coord::new(5, 5)),
             fruit: Coord::new(0, 0),
+        };
+        s.set_random_fruit();
+        s
+    }
+
+    fn set_random_fruit(&mut self){
+        let mut v = Vec::new();
+        for i in 0..self.board_size.x {
+            for j in 0..self.board_size.y {
+                v.push(Coord::new(i, j));
+            }
         }
+        let mut i = 0;
+        while i != v.len() {
+            if self.snake.head == v[i]
+                || self.snake.tail.iter().any(|&pos| pos == v[i])
+            {
+                v.remove(i);
+            } else {
+                i += 1;
+            }
+        }
+        self.fruit = *v.choose(&mut rand::thread_rng()).unwrap();
     }
 
     fn draw_fruit(&self) {
@@ -139,7 +162,8 @@ impl Game {
             if !self.snake.alive {
                 break;
             } else if self.snake.head == self.fruit {
-                self.fruit = Coord::new(9, 2);
+                self.set_random_fruit();
+                self.snake.length_to_add += 2;
             }
             while poll(Duration::from_millis(0))? {
                 match read()? {
@@ -159,7 +183,7 @@ impl Game {
                     _ => (),
                 }
             }
-            std::thread::sleep(Duration::from_millis(200));
+            std::thread::sleep(Duration::from_millis(100));
         }
         Ok(())
     }
