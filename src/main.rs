@@ -1,5 +1,6 @@
 use crossterm::{
-    cursor::MoveTo,
+    cursor::{MoveTo, Hide, Show},
+    style::{SetForegroundColor, SetBackgroundColor, Color, Print, ResetColor},
     event::{read, Event, KeyCode},
     execute,
 };
@@ -33,7 +34,15 @@ impl Snake {
         }
     }
 
-    fn draw_head(){
+    fn draw_head(self){
+        execute!(
+            stdout(),
+            MoveTo(self.head.x as u16, self.head.y as u16),
+            SetBackgroundColor(Color::Blue),
+            SetForegroundColor(Color::Yellow),
+            Print("()"),
+            ResetColor
+            );
     }
 }
 
@@ -53,8 +62,8 @@ impl Game {
     }
 }
 
-fn move_cursor(x: u16, y: u16) {
-    execute!(stdout(), MoveTo(x, y));
+fn move_cursor(pos: Coord) {
+    execute!(stdout(), MoveTo(pos.x as u16, pos.y as u16));
 }
 
 fn get_char() -> KeyCode {
@@ -76,5 +85,8 @@ fn screen_to_game(pos: Coord) -> Coord{
 }
 
 fn main() {
+    execute!(stdout(), Hide);
     let game = Game::new();
+    game.snake.draw_head();
+    execute!(stdout(), Show);
 }
