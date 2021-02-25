@@ -120,7 +120,7 @@ impl Game {
             if !self.snake.alive {
                 break;
             }
-            if poll(Duration::from_millis(200))? {
+            if poll(Duration::from_millis(10))? {
                 match read()? {
                     Event::Key(event) => {
                         let direction = match event.code {
@@ -139,7 +139,7 @@ impl Game {
                 }
             }
             std::thread::sleep(Duration::from_millis(200));
-            };
+        };
         Ok(())
     }
 }
