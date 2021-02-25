@@ -89,6 +89,7 @@ impl Snake {
             || self.head.y >= board_size.y
             || self.head.x < 0
             || self.head.x >= board_size.x
+            || self.tail.iter().any(|&pos| pos.x == self.head.x && pos.y == self.head.y)
         {
             self.alive = false;
             return;
@@ -142,7 +143,7 @@ impl Game {
                     _ => (),
                 }
             }
-            std::thread::sleep(Duration::from_millis(200));
+            std::thread::sleep(Duration::from_millis(100));
         }
         Ok(())
     }
