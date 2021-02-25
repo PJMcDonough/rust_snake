@@ -34,7 +34,7 @@ impl Snake {
         }
     }
 
-    fn draw_head(self){
+    fn draw_head(&self){
         execute!(
             stdout(),
             MoveTo(self.head.x as u16, self.head.y as u16),
@@ -42,10 +42,10 @@ impl Snake {
             SetForegroundColor(Color::Yellow),
             Print("()"),
             ResetColor
-            );
+            ).unwrap();
     }
 
-    fn draw_tail(self){
+    fn draw_tail(&self){
         for cell in self.tail.iter() {
             execute!(
                 stdout(),
@@ -54,8 +54,13 @@ impl Snake {
                 SetForegroundColor(Color::Yellow),
                 Print("XX"),
                 ResetColor
-                );
+                ).unwrap();
         }
+    }
+
+    fn draw(&self) {
+        self.draw_head();
+        self.draw_tail();
     }
 }
 
@@ -76,7 +81,7 @@ impl Game {
 }
 
 fn move_cursor(pos: Coord) {
-    execute!(stdout(), MoveTo(pos.x as u16, pos.y as u16));
+    execute!(stdout(), MoveTo(pos.x as u16, pos.y as u16)).unwrap();
 }
 
 fn get_char() -> KeyCode {
@@ -98,8 +103,8 @@ fn screen_to_game(pos: Coord) -> Coord{
 }
 
 fn main() {
-    execute!(stdout(), Hide);
+    execute!(stdout(), Hide).unwrap();
     let game = Game::new();
     game.snake.draw_head();
-    execute!(stdout(), Show);
+    execute!(stdout(), Show).unwrap();
 }
