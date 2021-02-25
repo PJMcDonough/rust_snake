@@ -119,6 +119,7 @@ impl Game {
 
     fn run(&mut self) -> crossterm::Result<()> {
         loop {
+            self.draw_board();
             self.snake.update(&self.board_size);
             if !self.snake.alive {
                 break;
@@ -145,6 +146,24 @@ impl Game {
         }
         Ok(())
     }
+
+    fn draw_board(&self) {
+        execute!(stdout(), MoveTo(0, 0));
+        for i in 0..(self.board_size.x + 2) {
+            print!("XX");
+        }
+        println!();
+        for i in 0..self.board_size.x {
+            print!("XX");
+            for j in 0..self.board_size.y {
+                print!("  ");
+            }
+            println!("XX");
+        }
+        for i in 0..(self.board_size.x + 2) {
+            print!("XX");
+        }
+    }
 }
 
 fn move_cursor(pos: Coord) {
@@ -162,11 +181,11 @@ fn get_char() -> KeyCode {
 }
 
 fn game_to_screen(pos: Coord) -> Coord {
-    Coord::new(pos.x * 2, pos.y)
+    Coord::new(pos.x * 2 + 2, pos.y + 1)
 }
 
 fn screen_to_game(pos: Coord) -> Coord {
-    Coord::new(pos.x / 2, pos.y)
+    Coord::new(pos.x / 2 - 1, pos.y - 1)
 }
 
 fn main() {
