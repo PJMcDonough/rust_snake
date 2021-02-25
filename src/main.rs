@@ -111,7 +111,7 @@ struct Game {
 impl Game {
     fn new() -> Self {
         Self {
-            board_size: Coord::new(10, 10),
+            board_size: Coord::new(40, 40),
             snake: Snake::new(Coord::new(5, 5)),
             fruit: Coord::new(0, 0),
         }
