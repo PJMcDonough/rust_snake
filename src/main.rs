@@ -13,7 +13,7 @@ enum Direction {
     Right,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, PartialEq, PartialOrd)]
 struct Coord {
     x: i32,
     y: i32,
@@ -89,17 +89,17 @@ impl Snake {
             || self.head.y >= board_size.y
             || self.head.x < 0
             || self.head.x >= board_size.x
-            || self.tail.iter().any(|&pos| pos.x == self.head.x && pos.y == self.head.y)
+            || self.tail.iter().any(|&pos| pos == self.head)
         {
             self.alive = false;
             return;
         }
-        self.draw();
         if self.length_to_add != 0 {
             self.length_to_add -= 1;
         } else {
             self.tail.pop();
         }
+        self.draw();
     }
 }
 
@@ -118,12 +118,28 @@ impl Game {
         }
     }
 
+    fn draw_fruit(&self) {
+        let real_pos = game_to_screen(self.fruit);
+        execute!(
+            stdout(),
+            MoveTo(real_pos.x as u16, real_pos.y as u16),
+            SetBackgroundColor(Color::Red),
+            SetForegroundColor(Color::Green),
+            Print("()"),
+            ResetColor
+            )
+            .unwrap();
+    }
+
     fn run(&mut self) -> crossterm::Result<()> {
         loop {
             self.draw_board();
+            self.draw_fruit();
             self.snake.update(&self.board_size);
             if !self.snake.alive {
                 break;
+            } else if self.snake.head == self.fruit {
+                self.fruit = Coord::new(9, 2);
             }
             while poll(Duration::from_millis(0))? {
                 match read()? {
@@ -143,7 +159,7 @@ impl Game {
                     _ => (),
                 }
             }
-            std::thread::sleep(Duration::from_millis(100));
+            std::thread::sleep(Duration::from_millis(200));
         }
         Ok(())
     }
