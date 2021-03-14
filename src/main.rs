@@ -193,13 +193,13 @@ impl Game {
         for _i in 0..(self.board_size.x + 2) {
             print!("XX");
         }
-        println!();
+        println!("\r");
         for _i in 0..self.board_size.x {
             print!("XX");
             for _j in 0..self.board_size.y {
                 print!("  ");
             }
-            println!("XX");
+            println!("XX\r");
         }
         for _i in 0..(self.board_size.x + 2) {
             print!("XX");
@@ -212,8 +212,10 @@ fn game_to_screen(pos: Coord) -> Coord {
 }
 
 fn main() {
+    crossterm::terminal::enable_raw_mode().unwrap();
     execute!(stdout(), Hide).unwrap();
     let mut game = Game::new();
     game.run().unwrap();
     execute!(stdout(), Show).unwrap();
+    crossterm::terminal::disable_raw_mode().unwrap();
 }
