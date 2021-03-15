@@ -212,6 +212,8 @@ fn game_to_screen(pos: Coord) -> Coord {
 }
 
 fn main() {
+    let (cols, rows) = crossterm::terminal::size().unwrap();
+    execute!{stdout(), crossterm::terminal::SetSize(cols.max(84), cols.max(40))};
     crossterm::terminal::enable_raw_mode().unwrap();
     execute!(stdout(), Hide).unwrap();
     let mut game = Game::new();
