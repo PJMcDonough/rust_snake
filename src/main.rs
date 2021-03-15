@@ -7,6 +7,7 @@ use crossterm::{
 use std::io::{stdout, Write};
 use std::time::Duration;
 use rand::seq::SliceRandom;
+#[derive(Eq, PartialEq)]
 enum Direction {
     Up,
     Down,
@@ -169,10 +170,10 @@ impl Game {
                 match read()? {
                     Event::Key(event) => {
                         let direction = match event.code {
-                            KeyCode::Up => Some(Direction::Up),
-                            KeyCode::Down => Some(Direction::Down),
-                            KeyCode::Left => Some(Direction::Left),
-                            KeyCode::Right => Some(Direction::Right),
+                            KeyCode::Up if self.snake.facing != Direction::Down => Some(Direction::Up),
+                            KeyCode::Down if self.snake.facing != Direction::Up  => Some(Direction::Down),
+                            KeyCode::Left if self.snake.facing != Direction::Right => Some(Direction::Left),
+                            KeyCode::Right if self.snake.facing != Direction::Left => Some(Direction::Right),
                             _ => None,
                         };
                         match direction {
