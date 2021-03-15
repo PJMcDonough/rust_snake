@@ -216,9 +216,9 @@ fn main() {
     let (cols, rows) = crossterm::terminal::size().unwrap();
     execute!{stdout(), crossterm::terminal::SetSize(cols.max(84), cols.max(40))};
     crossterm::terminal::enable_raw_mode().unwrap();
-    execute!(stdout(), Hide).unwrap();
+    execute!(stdout(), Hide, crossterm::terminal::Clear(crossterm::terminal::ClearType::All)).unwrap();
     let mut game = Game::new();
     game.run().unwrap();
-    execute!(stdout(), Show).unwrap();
+    execute!(stdout(), Show, crossterm::terminal::Clear(crossterm::terminal::ClearType::All), MoveTo(0, 0)).unwrap();
     crossterm::terminal::disable_raw_mode().unwrap();
 }
